@@ -1,7 +1,7 @@
 [![](cover.png)](https://github.com/ufgo/reforge/)
 
 
-# Defold Scene Exporter (Blender Add-on)
+# Reforge - Defold Scene Exporter (Blender Add-on)
 
 Blender add-on for exporting scenes into a Defold project as:
 - `.glb` meshes
@@ -11,7 +11,17 @@ Blender add-on for exporting scenes into a Defold project as:
 
 Also supports optional **convex collision export** per prototype and **texture export** into your Defold project.
 
-Author: Alexander Bulatov
+## Local Installation (Blender)
+
+1.	Go to the Reforge releases page: https://github.com/ufgo/reforge/releases  
+2.	Download the desired version (reforge-<version>.zip).  
+3.	Open Blender.  
+4.	Navigate to: Edit → Preferences → Add-ons  
+5.	Click Install from Disk… and select the downloaded ZIP file.  
+6.	Enable the Reforge add-on in the add-ons list.    
+
+The Reforge panel will appear in:  
+3D Viewport → Sidebar (N) → Reforge  
 
 ---
 
