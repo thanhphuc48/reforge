@@ -66,6 +66,8 @@ class REFORGE_PT_panel(bpy.types.Panel):
             col.prop(s, "set_defold_collision_value")
             col.prop(s, "set_collision_group_value")
             col.prop(s, "set_collision_mask_value")
+            col.separator()
+            col.prop(s, "detect_duplicates")
 
             col.separator()
             col.label(text="Overwrite:")

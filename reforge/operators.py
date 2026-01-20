@@ -1,13 +1,44 @@
 import bpy
+import re
 
-from .export_core import run_export_scene, export_single_prototype_assets, export_all_prototypes_assets_no_scene
-from .utils import is_object_visible
-from .utils import sanitize_id
+from .export_core import (
+    run_export_scene,
+    export_single_prototype_assets,
+    export_all_prototypes_assets_no_scene,
+)
+from .utils import is_object_visible, sanitize_id
 
 # Keys to clear (exporter-created)
 OBJECT_EXPORT_KEYS = ("defold_prototype", "defold_collision", "collision_group", "collision_mask")
 MATERIAL_EXPORT_KEYS = ("defold_material", "defold_texture")
 
+
+# ------------------------------------------------------------
+# Duplicate name detection (.001/.002 -> base)
+# ------------------------------------------------------------
+_DUPLICATE_SUFFIX_RE = re.compile(r"^(.*)\.\d{3}$")
+
+
+def compute_prototype_name(obj_name: str, detect_duplicates: bool) -> str:
+    """
+    If detect_duplicates is enabled:
+      'Name.001' -> 'Name'
+      'Name.002' -> 'Name'
+    Otherwise: use obj_name as-is.
+
+    Always sanitized to be a stable Defold id / filename friendly string.
+    """
+    base = obj_name
+    if detect_duplicates:
+        m = _DUPLICATE_SUFFIX_RE.match(obj_name)
+        if m:
+            base = m.group(1)
+    return sanitize_id(base)
+
+
+# ------------------------------------------------------------
+# SAFE CLEAR (only our keys)
+# ------------------------------------------------------------
 def _collect_materials_from_objects(objects):
     mats, seen = [], set()
     for obj in objects:
@@ -24,39 +55,62 @@ def _collect_materials_from_objects(objects):
             mats.append(m)
     return mats
 
+
 def safe_clear_for_objects(objects) -> dict:
+    """
+    Clears ONLY exporter-created properties:
+      - Object: OBJECT_EXPORT_KEYS
+      - Materials used by these objects: MATERIAL_EXPORT_KEYS
+    """
     mats = _collect_materials_from_objects(objects)
     deleted = 0
 
     for obj in objects:
         for k in OBJECT_EXPORT_KEYS:
             if k in obj.keys():
-                del obj[k]
-                deleted += 1
+                try:
+                    del obj[k]
+                    deleted += 1
+                except Exception:
+                    pass
 
     for m in mats:
         for k in MATERIAL_EXPORT_KEYS:
             if k in m.keys():
-                del m[k]
-                deleted += 1
+                try:
+                    del m[k]
+                    deleted += 1
+                except Exception:
+                    pass
 
     return {"objects": len(objects), "materials": len(mats), "deleted_keys": deleted}
 
+
+# ------------------------------------------------------------
+# SET PROPS helpers
+# ------------------------------------------------------------
 def _set_custom_prop(obj, key, value, overwrite: bool) -> bool:
     if (obj.get(key) is None) or overwrite:
         obj[key] = value
         return True
     return False
 
+
 def _set_properties_for_objects(context, objects):
     s = context.scene.reforge_settings
-    changed = {"proto": 0, "proto_skip": 0, "col": 0, "col_skip": 0, "grp": 0, "grp_skip": 0, "msk": 0, "msk_skip": 0}
+
+    changed = {
+        "proto": 0, "proto_skip": 0,
+        "col": 0, "col_skip": 0,
+        "grp": 0, "grp_skip": 0,
+        "msk": 0, "msk_skip": 0,
+    }
 
     group_value = (s.set_collision_group_value or "").strip() or "default"
     mask_value = (s.set_collision_mask_value or "").strip() or "default"
 
     for obj in objects:
-        proto_value = sanitize_id(obj.name)
+        proto_value = compute_prototype_name(obj.name, s.detect_duplicates)
 
         if _set_custom_prop(obj, "defold_prototype", proto_value, s.overwrite_prototype):
             changed["proto"] += 1
@@ -81,6 +135,9 @@ def _set_properties_for_objects(context, objects):
     return changed
 
 
+# ------------------------------------------------------------
+# Operators: Export
+# ------------------------------------------------------------
 class REFORGE_OT_generate(bpy.types.Operator):
     """Generate Defold scene (.collection) from the current Blender scene."""
     bl_idname = "reforge.generate"
@@ -132,8 +189,11 @@ class REFORGE_OT_export_all_prototypes(bpy.types.Operator):
             return {'CANCELLED'}
 
 
+# ------------------------------------------------------------
+# Operators: Tools -> Set Props
+# ------------------------------------------------------------
 class REFORGE_OT_set_selected(bpy.types.Operator):
-    """Set exporter properties on selected objects (defold_prototype + collision flags)."""
+    """Set exporter properties on selected objects (defold_prototype + collision flags). Supports duplicate detection (.001 -> base name)."""
     bl_idname = "reforge.set_selected"
     bl_label = "1) Set Props (Selected)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -145,7 +205,13 @@ class REFORGE_OT_set_selected(bpy.types.Operator):
             return {'CANCELLED'}
 
         ch = _set_properties_for_objects(context, objs)
-        self.report({'INFO'}, f"proto {ch['proto']}/{ch['proto_skip']} | col {ch['col']}/{ch['col_skip']} | group {ch['grp']}/{ch['grp_skip']} | mask {ch['msk']}/{ch['msk_skip']}")
+        self.report(
+            {'INFO'},
+            f"proto {ch['proto']}/{ch['proto_skip']} | "
+            f"col {ch['col']}/{ch['col_skip']} | "
+            f"group {ch['grp']}/{ch['grp_skip']} | "
+            f"mask {ch['msk']}/{ch['msk_skip']}"
+        )
         return {'FINISHED'}
 
 
@@ -162,7 +228,13 @@ class REFORGE_OT_set_visible(bpy.types.Operator):
             return {'CANCELLED'}
 
         ch = _set_properties_for_objects(context, objs)
-        self.report({'INFO'}, f"proto {ch['proto']}/{ch['proto_skip']} | col {ch['col']}/{ch['col_skip']} | group {ch['grp']}/{ch['grp_skip']} | mask {ch['msk']}/{ch['msk_skip']}")
+        self.report(
+            {'INFO'},
+            f"proto {ch['proto']}/{ch['proto_skip']} | "
+            f"col {ch['col']}/{ch['col_skip']} | "
+            f"group {ch['grp']}/{ch['grp_skip']} | "
+            f"mask {ch['msk']}/{ch['msk_skip']}"
+        )
         return {'FINISHED'}
 
 
@@ -179,12 +251,21 @@ class REFORGE_OT_set_all(bpy.types.Operator):
             return {'CANCELLED'}
 
         ch = _set_properties_for_objects(context, objs)
-        self.report({'INFO'}, f"proto {ch['proto']}/{ch['proto_skip']} | col {ch['col']}/{ch['col_skip']} | group {ch['grp']}/{ch['grp_skip']} | mask {ch['msk']}/{ch['msk_skip']}")
+        self.report(
+            {'INFO'},
+            f"proto {ch['proto']}/{ch['proto_skip']} | "
+            f"col {ch['col']}/{ch['col_skip']} | "
+            f"group {ch['grp']}/{ch['grp_skip']} | "
+            f"mask {ch['msk']}/{ch['msk_skip']}"
+        )
         return {'FINISHED'}
 
 
+# ------------------------------------------------------------
+# Operators: Clear (Safe) with confirmation
+# ------------------------------------------------------------
 class REFORGE_OT_clear_selected(bpy.types.Operator):
-    """Remove exporter-created custom properties from selected objects and their used materials."""
+    """Remove exporter-created custom properties from selected objects and their used materials (confirmation required)."""
     bl_idname = "reforge.clear_selected"
     bl_label = "Clear Export Props (Selected)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -204,7 +285,7 @@ class REFORGE_OT_clear_selected(bpy.types.Operator):
 
 
 class REFORGE_OT_clear_visible(bpy.types.Operator):
-    """Remove exporter-created custom properties from visible objects and their used materials."""
+    """Remove exporter-created custom properties from visible objects and their used materials (confirmation required)."""
     bl_idname = "reforge.clear_visible"
     bl_label = "Clear Export Props (Visible)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -224,7 +305,7 @@ class REFORGE_OT_clear_visible(bpy.types.Operator):
 
 
 class REFORGE_OT_clear_all(bpy.types.Operator):
-    """Remove exporter-created custom properties from all objects and their used materials."""
+    """Remove exporter-created custom properties from all objects and their used materials (confirmation required)."""
     bl_idname = "reforge.clear_all"
     bl_label = "Clear Export Props (All)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -243,6 +324,9 @@ class REFORGE_OT_clear_all(bpy.types.Operator):
         return {'FINISHED'}
 
 
+# ------------------------------------------------------------
+# Register
+# ------------------------------------------------------------
 _CLASSES = (
     REFORGE_OT_generate,
     REFORGE_OT_export_selected_prototype,
@@ -255,9 +339,11 @@ _CLASSES = (
     REFORGE_OT_clear_all,
 )
 
+
 def register():
     for c in _CLASSES:
         bpy.utils.register_class(c)
+
 
 def unregister():
     for c in reversed(_CLASSES):

@@ -39,6 +39,8 @@ class ReforgeSettings(bpy.types.PropertyGroup):
     set_collision_group_value: StringProperty(name="Collision group", default="default")
     set_collision_mask_value: StringProperty(name="Collision mask", default="default")
 
+    # Duplicate detection
+    detect_duplicates: BoolProperty(name="Detect duplicates (.001, .002, etc -> base name)",default=False)
 
 _CLASSES = (ReforgeSettings,)
 
