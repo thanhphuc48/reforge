@@ -1,3 +1,6 @@
+[![](cover.png)](https://github.com/ufgo/reforge/)
+
+
 # Defold Scene Exporter (Blender Add-on)
 
 Blender add-on for exporting scenes into a Defold project as:
