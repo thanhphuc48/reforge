@@ -49,6 +49,13 @@ class REFORGE_PT_panel(bpy.types.Panel):
             col.separator()
             col.label(text="If defold_texture is missing:")
             col.label(text="Principled BSDF -> Base Color -> Image Texture is used.")
+            col.separator()
+            col.label(text="Baking:")
+            col.prop(s, "bake_color_texture")
+            sub = col.column(align=True)
+            sub.enabled = s.bake_color_texture
+            sub.prop(s, "bake_resolution")
+            sub.prop(s, "bake_padding")
 
         box = layout.box()
         if draw_foldout_header(box, s, "show_folders"):
@@ -68,7 +75,6 @@ class REFORGE_PT_panel(bpy.types.Panel):
             col.prop(s, "set_collision_mask_value")
             col.separator()
             col.prop(s, "detect_duplicates")
-
             col.separator()
             col.label(text="Overwrite:")
             row = col.row()
