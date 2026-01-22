@@ -148,7 +148,8 @@ def export_single_prototype_assets(context, obj) -> str:
                 settings=s,
                 mat=mat,
                 abs_textures_dir=abs_textures,
-                textures_dir_project=s.textures_dir
+                textures_dir_project=s.textures_dir,
+                obj=obj
             )
 
             # Bake overrides tex0 path (works with complex materials / Ucupaint)
@@ -176,7 +177,8 @@ def export_single_prototype_assets(context, obj) -> str:
             settings=s,
             mat=None,
             abs_textures_dir=abs_textures,
-            textures_dir_project=s.textures_dir
+            textures_dir_project=s.textures_dir,
+            obj=obj
         )
         blocks.append((mat_name, defold_mat_path, defold_tex_path))
 

@@ -91,23 +91,30 @@ def resolve_defold_material_and_texture_for_material(
     mat: Optional[bpy.types.Material],
     abs_textures_dir: str,
     textures_dir_project: str,
+    obj: Optional[bpy.types.Object] = None,
 ) -> Tuple[str, str, str]:
     # material name in .model must match glTF material name
     mat_name = mat.name if (mat and mat.name) else "default"
 
+    def _get_custom_prop_str(idblock, key: str) -> str:
+        if not idblock:
+            return ""
+        v = idblock.get(key)
+        return str(v).strip() if v is not None else ""
+
     defold_mat_path = ""
     if mat:
-        v = mat.get("defold_material")
-        if v is not None:
-            defold_mat_path = str(v).strip()
+        defold_mat_path = _get_custom_prop_str(mat, "defold_material")
+    if not defold_mat_path and obj:
+        defold_mat_path = _get_custom_prop_str(obj, "defold_material")
     if not defold_mat_path:
         defold_mat_path = (settings.default_material or "").strip() or "/builtins/materials/model.material"
 
     defold_tex_path = ""
     if mat:
-        v = mat.get("defold_texture")
-        if v is not None:
-            defold_tex_path = str(v).strip()
+        defold_tex_path = _get_custom_prop_str(mat, "defold_texture")
+    if not defold_tex_path and obj:
+        defold_tex_path = _get_custom_prop_str(obj, "defold_texture")
 
     if not defold_tex_path:
         img = find_basecolor_image_from_material(mat) if mat else None
